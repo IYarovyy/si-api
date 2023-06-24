@@ -2,14 +2,19 @@
 name = "si-api"
 version = "0.1.0"
 description = ""
-authors = ["Ihor Yarovyy <Ihor.Yarovyy@ringcentral.com>"]
+authors = ["Ihor Yarovyy <Ihor.Yarovyy@ukr.net>"]
 readme = "README.md"
 packages = [{include = "si_api", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+quart = "^0.18.4"
+evolutions = "^0.8.3"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "si_api:run"
