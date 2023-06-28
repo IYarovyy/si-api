@@ -38,4 +38,4 @@ async def find_user_by_email(email: str):
     query = "SELECT * FROM users WHERE email = $1"
 
     async with current_app.db_pool.acquire() as conn:
-        return conn.fetchrow(query, email)
+        return await conn.fetchrow(query, email)

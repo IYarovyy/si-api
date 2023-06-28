@@ -19,7 +19,6 @@ class ConnectionPool:
         db_user = app.config['DB_USER']
         db_pwd = app.config['DB_PWD']
 
-        print("===== {} ====".format(cls._POOL))
         if cls._POOL is None:
             cls._POOL = await asyncpg.create_pool(db_url, command_timeout=60)
         return cls._POOL
