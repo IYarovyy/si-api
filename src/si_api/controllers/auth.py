@@ -11,12 +11,6 @@ from si_api.services.user import AuthorizationException
 controller = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-class UserObject:
-    def __init__(self, email, role):
-        self.email = email
-        self.role = role
-
-
 def add_claims_to_access_token(user):
     return {"role": user.urole}
 
