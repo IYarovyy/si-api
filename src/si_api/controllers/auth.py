@@ -18,7 +18,7 @@ class UserObject:
 
 
 def add_claims_to_access_token(user):
-    return {"role": user.role}
+    return {"role": user.urole}
 
 
 def user_identity_lookup(user):
@@ -43,9 +43,8 @@ class LoginData:
 @validate_request(LoginData)
 async def login(data: LoginData):
     try:
-        user_data = await user_service.check_password(data.email, data.password)
-        if user_data:
-            user = UserObject(email=user_data['email'], role=user_data['urole'])
+        user = await user_service.check_password(data.email, data.password)
+        if user:
             access_token = create_access_token(identity=user)
             ret = {"access_token": access_token}
             return ret, 200

@@ -4,6 +4,7 @@ from typing import Optional
 from asyncpg import Record
 from quart import Quart, current_app
 
+from si_api.models.users import User
 from si_api.repositories import user as user_repository
 
 
@@ -60,14 +61,13 @@ async def get_by_email(email: str):
     return await user_repository.find_user_by_email(email)
 
 
-async def check_password(email: str, password: str) -> Record:
+async def check_password(email: str, password: str) -> User:
     user_data = await get_by_email(email)
     if user_data:
-        print("User data: {0}".format(user_data))
         pass_hash = user_data['password']
         if pass_hash:
             if current_app.bcrypt.check_password_hash(pass_hash, password):
-                return user_data
+                return User(**dict(user_data))
             else:
                 raise AuthorizationException('Wrong password')
         else:
