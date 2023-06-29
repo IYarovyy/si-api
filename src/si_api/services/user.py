@@ -1,9 +1,9 @@
 import enum
 from typing import Optional
 
-from asyncpg import Record
 from quart import Quart, current_app
 
+from si_api.controllers.in_models import LoginData
 from si_api.models.users import User
 from si_api.repositories import user as user_repository
 
@@ -61,16 +61,16 @@ async def get_by_email(email: str):
     return await user_repository.find_user_by_email(email)
 
 
-async def check_password(email: str, password: str) -> User:
-    user_data = await get_by_email(email)
+async def check_password(data: LoginData) -> User:
+    user_data = await get_by_email(data.email)
     if user_data:
         pass_hash = user_data['password']
         if pass_hash:
-            if current_app.bcrypt.check_password_hash(pass_hash, password):
+            if current_app.bcrypt.check_password_hash(pass_hash, data.password):
                 return User(**dict(user_data))
             else:
                 raise AuthorizationException('Wrong password')
         else:
-            raise AuthorizationException('Password is absent for user: {user}'.format(user=email))
+            raise AuthorizationException('Password is absent for user: {user}'.format(user=data.email))
     else:
-        raise AuthorizationException('User: {user} is absent in the DB'.format(user=email))
+        raise AuthorizationException('User: {user} is absent in the DB'.format(user=data.email))
