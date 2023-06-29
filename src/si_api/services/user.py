@@ -64,13 +64,10 @@ async def get_by_email(email: str):
 async def check_password(data: LoginData) -> User:
     user_data = await get_by_email(data.email)
     if user_data:
-        pass_hash = user_data['password']
-        if pass_hash:
-            if current_app.bcrypt.check_password_hash(pass_hash, data.password):
-                return User(**dict(user_data))
-            else:
-                raise AuthorizationException('Wrong password')
+        user = User(**dict(user_data))
+        if current_app.bcrypt.check_password_hash(user.password, data.password):
+            return User(**dict(user_data))
         else:
-            raise AuthorizationException('Password is absent for user: {user}'.format(user=data.email))
+            raise AuthorizationException('Wrong password')
     else:
         raise AuthorizationException('User: {user} is absent in the DB'.format(user=data.email))
