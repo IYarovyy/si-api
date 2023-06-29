@@ -34,23 +34,16 @@ def check_if_token_in_blacklist(decrypted_token):
 
 
 @dataclass
-class LoginIn:
+class LoginData:
     email: str
     password: str
 
 
 @controller.post('/login')
-# @validate_request(LoginIn)
-async def login():
-    req_json = await request.get_json()
-    email = req_json.get("email", None)
-    password = req_json.get("password", None)
-    if not email:
-        return {"msg": "Missing email parameter"}, 400
-    if not password:
-        return {"msg": "Missing password parameter"}, 400
+@validate_request(LoginData)
+async def login(data: LoginData):
     try:
-        user_data = await user_service.check_password(email, password)
+        user_data = await user_service.check_password(data.email, data.password)
         if user_data:
             user = UserObject(email=user_data['email'], role=user_data['urole'])
             access_token = create_access_token(identity=user)
