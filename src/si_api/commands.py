@@ -6,17 +6,20 @@ from quart import Quart
 from quart_bcrypt import Bcrypt
 
 from database import ConnectionPool
-from services import user as user_service
+from si_api.services import user as user_service
 
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 def register(app: Quart):
     def validate_email(ctx, param, value):
-        if EMAIL_REGEX.fullmatch(value):
-            return value
+        if value:
+            if EMAIL_REGEX.fullmatch(value):
+                return value
+            else:
+                raise click.BadParameter("Bad format of email: " + value)
         else:
-            raise click.BadParameter("Bad format of emai: " + value)
+            raise click.BadParameter("Empty email")
 
     async def add_user(email: str,
                        role: str,

@@ -1,19 +1,20 @@
 import os
 from typing import Optional
 
+from quart import Quart
 from quart_bcrypt import Bcrypt
 from quart_jwt_extended import JWTManager
 from quart_schema import QuartSchema
 
-import commands as commands
-import evolutions
-from controllers.person import controller as person_controller
-from controllers.user import controller as user_controller
-from controllers.auth import controller as auth_controller, check_if_token_in_blacklist
-from controllers.auth import add_claims_to_access_token, add_claims_to_access_token, user_identity_lookup
 from database import ConnectionPool
-from quart import Quart
-from services import user as user_service
+# import commands as commands
+from si_api import commands
+from si_api.controllers.auth import add_claims_to_access_token, add_claims_to_access_token, \
+    user_identity_lookup
+from si_api.controllers.auth import controller as auth_controller, check_if_token_in_blacklist
+from si_api.controllers.person import controller as person_controller
+from si_api.controllers.user import controller as user_controller
+from si_api.services import user as user_service
 
 
 # def run_evolutions(app: Quart):
@@ -33,7 +34,7 @@ def create_app(o_mode: Optional[str]):
     else:
         mode = o_mode
     app = Quart(__name__)
-    app.config.from_object(f"config.{mode}")
+    app.config.from_object(f"si_api.config.{mode}")
     return app
 
 
