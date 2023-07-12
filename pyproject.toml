@@ -22,6 +22,7 @@ quart-cors = "^0.6.0"
 torch = "^2.0.1"
 librosa = "^0.10.0.post2"
 pandas = "^2.0.3"
+scikit-learn = "1.2.2"
 
 
 [build-system]

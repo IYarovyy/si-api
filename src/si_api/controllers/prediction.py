@@ -1,5 +1,4 @@
 from quart import request, Blueprint, current_app
-from quart.datastructures import FileStorage
 from quart_jwt_extended import jwt_required
 
 controller = Blueprint('predict', __name__, url_prefix='/predict')
@@ -15,17 +14,17 @@ def allowed_file(filename):
 @jwt_required
 async def predict():
     files = await request.files
-    prediction = []
+    res_predictions = []
     for name, file in files.items():
         if file and allowed_file(file.filename):
             print(type(file))
-            [data, rate] = await current_app.prediction_engine.analize(file)
+            predictions = await current_app.prediction_engine.analyze(file)
 
-            print(f'Processing {file.filename}: {rate}')
-            prediction.append({"name": file.filename, "len": rate})
+            res_predictions.append({"file": file.filename, "prediction": predictions})
+            # predictions.append({"file": file.filename, "prediction": predictions})
 
-    if len(prediction) == 0:
+    if len(res_predictions) == 0:
         ret = {"msg": "File not supplied"}
         return ret, 400
     else:
-        return prediction, 200
+        return {"predictions": res_predictions}, 200

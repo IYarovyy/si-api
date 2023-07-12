@@ -5,13 +5,17 @@ import pandas as pd
 import numpy as np
 from quart.datastructures import FileStorage
 
+from si_api.prediction.Net_Conv import Net_Conv
+
 
 class PredictionEngine:
     def __init__(self, models_path: str, scaler_path: str):
         self.scaler = joblib.load(scaler_path)
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-        self.best_model = torch.load(models_path)
+        self.best_model = Net_Conv(647, 17)  # TODO Where we should get these parameters from???
+        self.best_model.load_state_dict(torch.load(models_path))
+        self.best_model.eval()
 
     @classmethod
     async def __adjust_signal_length(cls, signal, target_length):
@@ -94,19 +98,19 @@ class PredictionEngine:
         features = speach_tensor
         return features
 
-    async def analize(self, file: FileStorage):
-        features = await  self.__process_signals(file)
+    async def analyze(self, file: FileStorage):
+        features = await self.__process_signals(file)
         columns = [f'feature_{i}' for i in range(len(features))]
-        # df = pd.DataFrame(features)
-        df = pd.DataFrame(features, columns=columns)
+        df = pd.DataFrame([features], columns=columns)
         test_df = pd.DataFrame(self.scaler.transform(df))
 
         test_features = torch.tensor(test_df.values, dtype=torch.float32).to(self.device)
-        # test_labels = torch.tensor(test_y.values, dtype=torch.long).to(self.device)
 
         with torch.no_grad():
             outputs = self.best_model(test_features)
+            print(outputs)
             predictions = torch.argmax(outputs, 1).detach().numpy()
+            print(predictions)
             for it in range(outputs.shape[0]):
                 prob = outputs[it, :]
                 sorted_classes = torch.argsort(prob, descending=True)
