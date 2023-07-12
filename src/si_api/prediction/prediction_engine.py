@@ -97,8 +97,8 @@ class PredictionEngine:
     async def analize(self, file: FileStorage):
         features = await  self.__process_signals(file)
         columns = [f'feature_{i}' for i in range(len(features))]
-        df = pd.DataFrame(features)
-        # df = pd.DataFrame(features, columns=columns)
+        # df = pd.DataFrame(features)
+        df = pd.DataFrame(features, columns=columns)
         test_df = pd.DataFrame(self.scaler.transform(df))
 
         test_features = torch.tensor(test_df.values, dtype=torch.float32).to(self.device)
