@@ -18,6 +18,10 @@ shell = "^1.0.1"
 quart-jwt-extended = "^0.1.0"
 quart-schema = "^0.16.0"
 pydantic = "^1.10.9"
+quart-cors = "^0.6.0"
+torch = "^2.0.1"
+librosa = "^0.10.0.post2"
+pandas = "^2.0.3"
 
 
 [build-system]

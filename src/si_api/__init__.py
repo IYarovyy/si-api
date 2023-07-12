@@ -3,17 +3,19 @@ from typing import Optional
 
 from quart import Quart
 from quart_bcrypt import Bcrypt
+from quart_cors import cors
 from quart_jwt_extended import JWTManager
-from quart_schema import QuartSchema
+from quart_schema import (QuartSchema, Info)
 
 from database import ConnectionPool
-# import commands as commands
 from si_api import commands
 from si_api.controllers.auth import add_claims_to_access_token, add_claims_to_access_token, \
     user_identity_lookup
 from si_api.controllers.auth import controller as auth_controller, check_if_token_in_blacklist
 from si_api.controllers.person import controller as person_controller
+from si_api.controllers.prediction import controller as prediction_controller
 from si_api.controllers.user import controller as user_controller
+from si_api.prediction.prediction_engine import PredictionEngine
 from si_api.services import user as user_service
 
 
@@ -35,6 +37,7 @@ def create_app(o_mode: Optional[str]):
         mode = o_mode
     app = Quart(__name__)
     app.config.from_object(f"si_api.config.{mode}")
+    app = cors(app, allow_origin="*")
     return app
 
 
@@ -48,6 +51,7 @@ app = commands.register(app)
 app.register_blueprint(user_controller)
 app.register_blueprint(person_controller)
 app.register_blueprint(auth_controller)
+app.register_blueprint(prediction_controller)
 
 
 @app.before_serving
@@ -61,7 +65,20 @@ async def add_jwt_manager():
 @app.before_serving
 async def init():
     app.bcrypt = Bcrypt(app)
-    QuartSchema(app)
+    QuartSchema(app,
+                info=Info(title="Speaker Identifier", version=app.config['OPENAPI_VERSION']),
+                servers=app.config['OPENAPI_SERVER'],
+                security_schemes={
+                    "MyBearer": {"type": "http", "scheme": "bearer"}
+                })
+
+
+@app.before_serving
+async def init_prediction_engine():
+    app.prediction_engine = PredictionEngine(
+        app.config['PREDICT_MODEL_DIR'] + app.config['PREDICT_MODEL_DEFAULT'],
+        app.config['PREDICT_MODEL_DIR'] + app.config['PREDICT_SCALER_DEFAULT']
+    )
 
 
 @app.before_serving

@@ -3,7 +3,7 @@ from typing import Optional
 
 from quart import Quart, current_app
 
-from si_api.controllers.in_models import LoginData
+from si_api.controllers.ctrl_models import LoginData
 from si_api.models.users import User
 from si_api.repositories import user as user_repository
 
@@ -70,4 +70,4 @@ async def check_password(data: LoginData) -> User:
         else:
             raise AuthorizationException('Wrong password')
     else:
-        raise AuthorizationException('User: {user} is absent in the DB'.format(user=data.email))
+        raise AuthorizationException('User {user} is absent in the DB'.format(user=data.email))

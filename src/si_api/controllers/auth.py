@@ -2,9 +2,9 @@ from quart import Blueprint
 from quart_jwt_extended import (
     create_access_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt
 )
-from quart_schema import validate_request
+from quart_schema import (validate_request, validate_response)
 
-from si_api.controllers.in_models import LoginData
+from si_api.controllers.ctrl_models import (LoginData, AuthData, ErrorMsg)
 from si_api.services import user as user_service
 from si_api.services.user import AuthorizationException
 
@@ -29,15 +29,17 @@ def check_if_token_in_blacklist(decrypted_token):
 
 @controller.post('/login')
 @validate_request(LoginData)
+@validate_response(AuthData, 200)
+@validate_response(ErrorMsg, 401)
 async def login(data: LoginData):
     try:
         user = await user_service.check_password(data)
         if user:
             access_token = create_access_token(identity=user)
-            ret = {"access_token": access_token}
+            ret = AuthData(access_token)
             return ret, 200
     except AuthorizationException as e:
-        return {"msg": e.message}, 401
+        return ErrorMsg(e.message), 401
 
 
 @controller.post("/refresh")
