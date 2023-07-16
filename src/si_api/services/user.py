@@ -66,7 +66,7 @@ async def check_password(data: LoginData) -> User:
     if user_data:
         user = User(**dict(user_data))
         if current_app.bcrypt.check_password_hash(user.password, data.password):
-            return User(**dict(user_data))
+            return user
         else:
             raise AuthorizationException('Wrong password')
     else:
