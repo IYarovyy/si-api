@@ -31,9 +31,8 @@ from si_api.services import user as user_service
 
 
 def create_app(o_mode: Optional[str]):
-    if o_mode is None:
-        mode = 'Development'
-    else:
+    mode = 'Development'
+    if o_mode:
         mode = o_mode
     app = Quart(__name__)
     app.config.from_object(f"si_api.config.{mode}")

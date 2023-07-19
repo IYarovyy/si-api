@@ -15,3 +15,8 @@ class AuthData:
 @dataclass
 class ErrorMsg:
     message: str
+
+
+@dataclass
+class UploadFile:
+    name: str

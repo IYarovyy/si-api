@@ -14,6 +14,10 @@ def allowed_file(filename):
 @jwt_required
 async def predict():
     files = await request.files
+    form = await request.form
+    print(request.headers)
+    print(form.keys())
+    print(files)
     res_predictions = []
     for name, file in files.items():
         if file and allowed_file(file.filename):
