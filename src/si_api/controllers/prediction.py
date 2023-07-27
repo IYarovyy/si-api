@@ -1,5 +1,10 @@
+from typing import List
+
 from quart import request, Blueprint, current_app
 from quart_jwt_extended import jwt_required
+from quart_schema import (validate_response, document_request)
+
+from si_api.controllers.ctrl_models import Prediction, ErrorMsg, Predictions
 
 controller = Blueprint('predict', __name__, url_prefix='/predict')
 
@@ -12,23 +17,20 @@ def allowed_file(filename):
 
 @controller.post('/')
 @jwt_required
+# @document_request()
+@validate_response(Predictions, 200)
+@validate_response(ErrorMsg, 400)
 async def predict():
     files = await request.files
-    form = await request.form
-    print(request.headers)
-    print(form.keys())
-    print(files)
-    res_predictions = []
+    res_predictions = Predictions(list())
     for name, file in files.items():
         if file and allowed_file(file.filename):
-            print(type(file))
             predictions = await current_app.prediction_engine.analyze(file)
+            res_predictions.predictions.append(Prediction(file=file.filename, prediction=list(predictions)))
 
-            res_predictions.append({"file": file.filename, "prediction": predictions})
-            # predictions.append({"file": file.filename, "prediction": predictions})
+    print(res_predictions)
 
-    if len(res_predictions) == 0:
-        ret = {"msg": "File not supplied"}
-        return ret, 400
+    if len(res_predictions.predictions) == 0:
+        return ErrorMsg("File not supplied"), 400
     else:
-        return {"predictions": res_predictions}, 200
+        return res_predictions, 200

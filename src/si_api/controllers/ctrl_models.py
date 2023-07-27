@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 
 @dataclass
@@ -18,5 +19,11 @@ class ErrorMsg:
 
 
 @dataclass
-class UploadFile:
-    name: str
+class Prediction:
+    file: str
+    prediction: List[str]
+
+
+@dataclass
+class Predictions:
+    predictions: List[Prediction]
