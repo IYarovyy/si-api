@@ -1,7 +1,8 @@
+import json
 import os
 from typing import Optional
 
-from quart import Quart
+from quart import Quart, render_template
 from quart_bcrypt import Bcrypt
 from quart_cors import cors
 from quart_jwt_extended import JWTManager
@@ -17,6 +18,7 @@ from si_api.controllers.prediction import controller as prediction_controller
 from si_api.controllers.user import controller as user_controller
 from si_api.prediction.prediction_engine import PredictionEngine
 from si_api.services import user as user_service
+from si_api.files import get_full_path
 
 
 # def run_evolutions(app: Quart):
@@ -34,7 +36,7 @@ def create_app(o_mode: Optional[str]):
     mode = 'Development'
     if o_mode:
         mode = o_mode
-    app = Quart(__name__)
+    app = Quart(__name__, static_folder="assets")
     app.config.from_object(f"si_api.config.{mode}")
     app = cors(app, allow_origin="*")
     return app
@@ -59,6 +61,15 @@ async def add_jwt_manager():
     app.jwt.user_identity_loader(user_identity_lookup)
     app.jwt.user_claims_loader(add_claims_to_access_token)
     app.jwt.token_in_blacklist_loader(check_if_token_in_blacklist)
+
+
+@app.route("/")
+async def index():
+    manifest_path = get_full_path('si_api', 'manifest.json')
+    with open(manifest_path) as manifest_file:
+        manifest = json.load(manifest_file)
+        print(manifest)
+        return await render_template("index.html", manifest=manifest)
 
 
 @app.before_serving
